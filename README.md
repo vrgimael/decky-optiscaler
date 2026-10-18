@@ -39,8 +39,11 @@ OptiScaler v0.9.4 is bundled, so installing works offline and every game gets th
   you all 288 settings across 34 sections, generated from the comments in `OptiScaler.ini` so
   they match the shipped build. Edits keep every comment in the file, and names are the
   overlay's own.
-- **FSR 4.1.1b on Steam Deck.** Close the game, then choose **FSR 4.1.1b — Steam Deck**
-  in Basic settings. One selection downloads the community RDNA2 ghosting fix and enables
+- **FSR 4 builds on Steam Deck.** Close the game and choose **Steam Deck FSR 4 build**
+  in Basic settings for the iGPU **Exact** or experimental **Lossy** release
+  (`dll-2026-10-15`). Lossy trades image quality for speed. The original
+  **FSR 4.1.1b — Steam Deck** preset is also available.
+  One selection downloads the chosen community build and enables
   INT8 upscaling. Frame generation stays separate. See [Steam Deck FSR 4](docs/steam-deck-fsr4.md)
   for verification, rollback, and limitations.
 - **Changes settings while you play.** A bundled ASI plugin applies frame generation, the

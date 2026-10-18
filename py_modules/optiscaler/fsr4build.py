@@ -153,7 +153,16 @@ def fetch(build, cache_dir, logger=None):
             if target.exists():
                 shutil.rmtree(target)
             payload.extract_archive(archive, target, logger)
-            produced = next((p for p in target.rglob(build["file"]) if p.is_file()), None)
+            member = source.get("member")
+            if member:
+                relative = Path(member)
+                if relative.is_absolute() or ".." in relative.parts:
+                    raise ValueError("invalid FSR 4 archive member")
+                produced = target / relative
+                if not produced.is_file():
+                    produced = None
+            else:
+                produced = next((p for p in target.rglob(build["file"]) if p.is_file()), None)
             if produced is None:
                 raise ValueError(f"{source['asset']} did not contain {build['file']}")
             if not _matches(produced, build):

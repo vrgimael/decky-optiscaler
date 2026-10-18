@@ -11,7 +11,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'py_modules'))
 from optiscaler import installer, fsr4build
-from optiscaler.constants import FFX_UPSCALER_DLL, INI_NAME, MANIFEST_NAME
+from optiscaler.constants import FFX_UPSCALER_DLL, FSR4_BUILDS, INI_NAME, MANIFEST_NAME
 from optiscaler.inifile import IniFile
 from optiscaler.service import OptiScalerService
 
@@ -118,6 +118,28 @@ class BuildFetchTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, 'did not contain'):
                 fsr4build.fetch(self.build, self.root)
 
+    def test_explicit_member_selects_lossy_when_exact_has_same_filename(self):
+        self.build['sources'] = [dict(self.build['sources'][0],
+                                     member=f"lossy/{self.build['file']}")]
+        def extract(archive, target, logger=None):
+            for variant, content in [('exact', b'wrong exact DLL'), ('lossy', self.dll_bytes)]:
+                folder = target / variant
+                folder.mkdir(parents=True)
+                (folder / self.build['file']).write_bytes(content)
+        with patch.object(fsr4build.wiki, 'download', side_effect=self.download), \
+                patch.object(fsr4build.payload, 'extract_archive', side_effect=extract):
+            path = fsr4build.fetch(self.build, self.root)
+            self.assertEqual(path.read_bytes(), self.dll_bytes)
+
+    def test_missing_member_does_not_fall_back_to_another_variant(self):
+        self.build['sources'] = [dict(self.build['sources'][0],
+                                     member=f"missing/{self.build['file']}")]
+        with patch.object(fsr4build.wiki, 'download', side_effect=self.download), \
+                patch.object(fsr4build.payload, 'extract_archive', side_effect=self.extract):
+            with self.assertRaisesRegex(RuntimeError, 'did not contain'):
+                fsr4build.fetch(self.build, self.root)
+            self.assertFalse(fsr4build.cached_path(self.root, self.build).exists())
+
 
 class DeckFsr4Tests(unittest.TestCase):
     def setUp(self):
@@ -179,6 +201,35 @@ class DeckFsr4Tests(unittest.TestCase):
             result = asyncio.run(self.service.set_fsr4_build(str(self.target), 'unknown'))
             self.assertFalse(result['ok'])
             fetch.assert_not_called()
+
+    def test_lossy_to_exact_switch_reinstall_and_restore(self):
+        builds = []
+        dlls = {}
+        for variant in ('lossy', 'exact'):
+            build_id = f'4.1.1-igpu-{variant}-2026-10-15'
+            path = self.root / f'{variant}.dll'
+            path.write_bytes(f'test {variant} DLL'.encode())
+            build = dict(next(b for b in FSR4_BUILDS if b['id'] == build_id),
+                         file_bytes=path.stat().st_size,
+                         file_sha256=hashlib.sha256(path.read_bytes()).hexdigest())
+            builds.append(build)
+            dlls[build_id] = path
+        with patch.object(fsr4build, 'FSR4_BUILDS', builds), \
+                patch.object(fsr4build, 'fetch', side_effect=lambda b, *_: dlls[b['id']]):
+            for build in builds:
+                result = asyncio.run(self.service.set_fsr4_build(str(self.target), build['id']))
+                self.assertTrue(result['ok'], result)
+                config = asyncio.run(self.service.read_config(str(self.target)))
+                self.assertEqual(config['fsr4_build'], build['id'])
+                self.assertEqual(config['values']['FrameGen']['FGOutput'], 'fsr3')
+                self.assertEqual(config['values']['FSR']['Fsr4ForceEnableInt8'], 'true')
+                installer.install(self.target, self.payload)
+                self.assertEqual(fsr4build.identify(self.target/FFX_UPSCALER_DLL)['id'], build['id'])
+                self.assertTrue(installer.verify_install(self.target, self.payload)['complete'])
+            installer.restore_fsr4_build(self.target, self.payload)
+            self.assertEqual(fsr4build.identify(self.target/FFX_UPSCALER_DLL)['id'], 'bundled')
+            installer.uninstall(self.target)
+            self.assertEqual((self.target/FFX_UPSCALER_DLL).read_bytes(), b'original game DLL')
 
     def test_invalid_preset_rolls_back_settings_and_dll(self):
         before = self.snapshot()

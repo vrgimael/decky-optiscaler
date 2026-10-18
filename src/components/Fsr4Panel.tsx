@@ -80,8 +80,8 @@ export function Fsr4Panel({ targetDir, sources, gpu, onChanged }: Props) {
       {ffx?.fsr4_capable ? (
         <PanelSectionRow>
           <Notice tone="success" title="FSR 4 is present">
-            On Steam Deck, select <b>FSR 4.1.1b — Steam Deck</b> in Basic settings.
-            This installs the community RDNA2 fix and enables INT8 upscaling.
+            In Basic settings, use <b>Steam Deck FSR 4 build</b> to choose
+            the RDNA2 fix or the iGPU Exact / Lossy build and enable INT8 upscaling.
           </Notice>
         </PanelSectionRow>
       ) : null}

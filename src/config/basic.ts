@@ -79,6 +79,13 @@ function upscalerPreset(
   };
 }
 
+/** Downloadable Steam Deck builds; the backend verifies their pinned bytes. */
+export const FSR4_BUILD_CHOICES = [
+  { data: "4.1.1b", label: "FSR 4.1.1b — RDNA2 fix" },
+  { data: "4.1.1-igpu-exact-2026-10-15", label: "FSR 4.1.1 iGPU — Exact (2026-10-15)" },
+  { data: "4.1.1-igpu-lossy-2026-10-15", label: "FSR 4.1.1 iGPU — Lossy (2026-10-15)" },
+];
+
 export const UPSCALER_PRESETS: Preset[] = [
   {
     id: "auto",

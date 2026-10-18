@@ -1,5 +1,31 @@
 # Steam Deck FSR 4.1.1b
 
+## Exact and Lossy builds
+
+Close the game, install OptiScaler if needed, then select **Steam Deck FSR 4 build**
+in Basic settings (also available in Quick Access). The selector installs the
+chosen DLL and enables the INT8 configuration described below. Options include
+the original **4.1.1b**, **iGPU Exact**, and **iGPU Lossy**. The iGPU variants are
+pinned to [release dll-2026-10-15](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/releases/tag/dll-2026-10-15).
+They use the handheld/iGPU archive, not the desktop GPU archive. The first
+download is about 51 MiB; verified DLLs are cached per build for later use.
+
+Exact aims to preserve AMD's image. Lossy is experimental and reduces neural
+network work on selected frames, trading image quality for speed. It can soften
+motion, introduce ghosting, and alternate frame times. Read the upstream
+[quality comparison](https://github.com/zgauthier2000/fsr4-shader-performance-overrides/blob/main/docs/exact-vs-lossy.md)
+and the archive's `lossy/WARNING.txt`. Do not use these builds in online games or
+games with anti-cheat, or on RX 9000 GPUs. No performance gain is guaranteed on
+your Deck; compare the same scene and settings.
+
+Select Exact or 4.1.1b to switch back, or **Restore bundled upscaler** in Setup.
+The archive and the specific DLL in its `exact/` or `lossy/` directory are both
+verified by SHA-256 before installation. Setup identifies the installed build by
+its bytes. OptiScaler reports `4.1.1-igpu-cyboman` for Exact and
+`4.1.1-igpu-lossy-cyboman` for Lossy. Frame generation is configured separately.
+
+## Original 4.1.1b preset
+
 Close the game, install OptiScaler through the plugin if needed, and select
 **FSR 4.1.1b — Steam Deck** under Basic → Override upscaler with. The first use
 requires a download (about 3.5 MB); later games reuse the verified cached DLL.

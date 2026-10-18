@@ -102,9 +102,9 @@ Object.assign(fixtures, {
   find_running_game: () => ({ found: true, appid: "1091500", detail }),
   get_auto_plan: { recommendation: { matched: false }, plan: { available: false } },
   get_pref: { key: "auto", value: null },
-  set_fsr4_build: () => {
+  set_fsr4_build: (_dir: string, buildId: string) => {
     if (fsr4SetupFails) return { ok: false, error: "Close the game before changing the FSR 4 build." };
-    installedFsr4Build = "4.1.1b";
+    installedFsr4Build = buildId;
     setIni({ Upscalers: { Dx12Upscaler: "fsr31" },
       FSR: { Fsr4ForceEnableInt8: "true", Fsr4Update: "auto", UpscalerIndex: "0" } });
     return { ok: true };
@@ -361,6 +361,31 @@ const tile = (host: Element, label: string) => {
   check("successful setup selects the patched preset", selected(host5, "Override upscaler with"), "fsr4-int8");
   check("setup leaves frame generation alone", JSON.stringify(ini.FrameGen), fgBeforeSetup);
   check("setup says next launch", host5.textContent!.includes("ready for the next launch"), true);
+
+  const lossyId = "4.1.1-igpu-lossy-2026-10-15";
+  const exactId = "4.1.1-igpu-exact-2026-10-15";
+  fsr4SetupFails = true;
+  await act(async () => {
+    (all(control(host5, "Steam Deck FSR 4 build"), `[data-opt-value="${lossyId}"]`)[0] as HTMLElement).click();
+  });
+  await settle(200);
+  check("running-game rejection keeps the old build selected", selected(host5, "Steam Deck FSR 4 build"), "4.1.1b");
+  fsr4SetupFails = false;
+  await act(async () => {
+    (all(control(host5, "Steam Deck FSR 4 build"), `[data-opt-value="${lossyId}"]`)[0] as HTMLElement).click();
+  });
+  await settle(200);
+  check("lossy selection reaches backend and survives reload", selected(host5, "Steam Deck FSR 4 build"), lossyId);
+  check("lossy remains a recognized INT8 preset", selected(host5, "Override upscaler with"), "fsr4-int8");
+  check("lossy explains the quality tradeoff", host5.textContent!.includes("Experimental lossy upscaling"), true);
+  check("lossy preserves frame generation", JSON.stringify(ini.FrameGen), fgBeforeSetup);
+  await act(async () => {
+    (all(control(host5, "Steam Deck FSR 4 build"), `[data-opt-value="${exactId}"]`)[0] as HTMLElement).click();
+  });
+  await settle(200);
+  check("can switch back to exact", selected(host5, "Steam Deck FSR 4 build"), exactId);
+  check("exact removes the lossy notice", host5.textContent!.includes("Experimental lossy upscaling"), false);
+  check("exact preserves frame generation", JSON.stringify(ini.FrameGen), fgBeforeSetup);
 
   await act(async () => root5.unmount());
   liveBackend = "fsr31";

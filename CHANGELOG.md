@@ -5,6 +5,12 @@ Newest first. Each release ships `Decky OptiScaler.zip` for Decky Loader's
 
 ## [Unreleased]
 
+- Add a per-game **Steam Deck FSR 4 build** selector for the iGPU Exact and
+  experimental Lossy DLLs from `zgauthier2000/fsr4-shader-performance-overrides`
+  release `dll-2026-10-15`, alongside the original 4.1.1b RDNA2 fix. Downloads
+  and DLLs are checksum-pinned. Close the game before switching; frame generation
+  settings are preserved. Lossy trades image quality for speed.
+
 ## [0.0.7] - 2026-09-18
 
 FSR 4 on the Steam Deck, and the compatibility list is whole again.

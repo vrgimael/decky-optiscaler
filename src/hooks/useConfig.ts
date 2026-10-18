@@ -192,7 +192,7 @@ export function useConfig(targetDir: string | null, enabled: boolean, reloadKey?
     [queue]
   );
 
-  const enableFsr4 = useCallback(async () => {
+  const enableFsr4 = useCallback(async (buildId = "4.1.1b") => {
     if (!targetDir) throw new Error("Install OptiScaler first.");
     setSaving(true);
     try {
@@ -200,8 +200,8 @@ export function useConfig(targetDir: string | null, enabled: boolean, reloadKey?
       if (timer.current !== null) window.clearTimeout(timer.current);
       await flush();
       setSaving(true);
-      const result = await setFsr4Build(targetDir, "4.1.1b");
-      if (!result.ok) throw new Error(result.error ?? "Could not enable FSR 4.1.1b");
+      const result = await setFsr4Build(targetDir, buildId);
+      if (!result.ok) throw new Error(result.error ?? "Could not enable FSR 4 build");
       forgetWrites(targetDir);
       await load();
       setDirty(true);

@@ -1,6 +1,6 @@
 {
   "name": "decky-optiscaler",
-  "version": "0.0.7",
+  "version": "0.0.7-lossy.1",
   "description": "Manage OptiScaler per game from the Steam Deck UI, without the in-game overlay",
   "type": "module",
   "scripts": {
@@ -20,12 +20,12 @@
   "license": "BSD-3-Clause",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/danielcamilo1/decky-optiscaler.git"
+    "url": "git+https://github.com/vrgimael/decky-optiscaler.git"
   },
   "bugs": {
-    "url": "https://github.com/danielcamilo1/decky-optiscaler/issues"
+    "url": "https://github.com/vrgimael/decky-optiscaler/issues"
   },
-  "homepage": "https://github.com/danielcamilo1/decky-optiscaler#readme",
+  "homepage": "https://github.com/vrgimael/decky-optiscaler#readme",
   "devDependencies": {
     "@decky/rollup": "^1.0.2",
     "@decky/ui": "^4.11.0",

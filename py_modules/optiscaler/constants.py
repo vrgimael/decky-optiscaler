@@ -248,6 +248,34 @@ FSR4_BUILDS = [
 ]
 
 
+# The handheld/iGPU archive contains two identically named DLLs. Pin both
+# the release and the member path so extraction never picks the other variant.
+for _variant, _sha256, _bytes in (
+    ("exact", "4fccc73c3553d5eed3bcabbfeb8d4ee30f87597c0fda1df12a7552a55c7102bf", 38898688),
+    ("lossy", "e06504bdf4acda9f3a31b773d6d888e6196115b6b230446d002c00eff18f41a2", 55096320),
+):
+    FSR4_BUILDS.append({
+        "id": f"4.1.1-igpu-{_variant}-2026-10-15",
+        "label": f"4.1.1 iGPU {_variant} (2026-10-15)",
+        "note": (
+            "Optimized iGPU INT8 build preserving AMD's image."
+            if _variant == "exact" else
+            "Experimental faster iGPU INT8 build. Changes image quality and may cause ghosting or softer motion."
+        ),
+        "sources": [{
+            "repo": "zgauthier2000/fsr4-shader-performance-overrides",
+            "tag": "dll-2026-10-15",
+            "asset": "fsr4.1.1-igpu-cyboman.zip",
+            "archive_sha256": "9c5caf5cf31b13af64d4c255a57514c311d131b2b4951479702dafac71565531",
+            "member": f"{_variant}/{FFX_UPSCALER_DLL}",
+        }],
+        "file": FFX_UPSCALER_DLL,
+        "file_sha256": _sha256,
+        "file_bytes": _bytes,
+        "reaches_fsr4_by": "int8",
+    })
+
+
 WIKI_RAW_BASE = "https://raw.githubusercontent.com/wiki/optiscaler/OptiScaler"
 WIKI_HTML_BASE = "https://github.com/optiscaler/OptiScaler/wiki"
 COMPAT_LIST_PAGE = "Compatibility-List.md"
